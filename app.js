@@ -25,10 +25,8 @@ app.post('/login', (req, res, next) => {
   const { username, password } = req.body;
   console.log(req.body);
   if (users[username] && users[username] === password) {
-    // We set this property in the session
-    // This proves the user is logged in.
-    // We normally might store the userid or username or 
-    // other things in here.
+    // We sign a JWT and store it in a cookie on the response.
+    // The browser will store it and send it back down
     res.cookie('token', jwt.sign({
       username
     }, secret),{
@@ -51,7 +49,9 @@ app.post('/login', (req, res, next) => {
 // This is an authenticated route.
 // We could probably move these checks into an authRequired middleware.
 app.get('/authenticated', (req, res, next) => {
+  // We grab the token from the cookies
   const token = req.cookies.token;
+  // jwt verify throws an exception when the token isn't valid
   try { 
     jwt.verify(token, secret) 
   }
@@ -70,6 +70,7 @@ app.get('/authenticated', (req, res, next) => {
 
 // This logs the user out by destroying their session
 app.get('/logout', (req, res, next) => {
+  // We just clear the token cookie to log the user out.
   res.clearCookie('token', {
     sameSite: 'strict',
     httpOnly: true
