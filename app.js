@@ -68,7 +68,7 @@ app.get('/authenticated', (req, res, next) => {
   });
 });
 
-// This logs the user out by destroying their session
+// This logs the user out by clearing the token cookie
 app.get('/logout', (req, res, next) => {
   // We just clear the token cookie to log the user out.
   res.clearCookie('token', {
