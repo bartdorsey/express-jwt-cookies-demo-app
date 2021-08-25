@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "nodemon ./bin/www"
+    "start": "npm run start-frontend & npm run start-backend",
+    "start-frontend": "npm start --prefix react-client",
+    "start-backend": "nodemon ./bin/www"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
