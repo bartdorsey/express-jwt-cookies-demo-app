@@ -14,6 +14,26 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// This is middleware that checks the JWT token in the cookie to see if it's valid
+// if it is, we call next(), otherwise we send a 401 Unauthorized
+const authRequired = (req, res, next) => {
+  // We grab the token from the cookies
+  const token = req.cookies.token;
+  // jwt verify throws an exception when the token isn't valid
+  try {
+    jwt.verify(token, secret)
+  }
+  catch (error) {
+    res.status(401).send({
+      loggedIn: false,
+      message: "Unauthorized"
+    });
+    return;
+  }
+  next();
+}
+
+
 
 const users = {
   testuser: 'password'
@@ -46,22 +66,9 @@ app.post('/login', (req, res, next) => {
 
 });
 
-// This is an authenticated route.
-// We could probably move these checks into an authRequired middleware.
-app.get('/authenticated', (req, res, next) => {
-  // We grab the token from the cookies
-  const token = req.cookies.token;
-  // jwt verify throws an exception when the token isn't valid
-  try { 
-    jwt.verify(token, secret) 
-  }
-  catch (error) {
-    res.status(401).send({
-      loggedIn: false,
-      message: "Unauthorized"
-    });
-    return;
-  }
+// This is an authenticated route, it uses our authRequired Middleware
+// You can't see this unless you are logged in
+app.get('/authenticated', authRequired, (req, res, next) => {
   res.send({
     loggedIn: true,
     message: "Congrats you can see this"
